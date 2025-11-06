@@ -1,0 +1,8 @@
+{
+  "description": "Prompt to be used by the field team to document the services and a client's location, offline, documenting dates, times, GPS coordinates, accepting typed data, and taking photos. Used by a single technician and 1 admin. Admin has a dashboard.",
+  "requestFramePermissions": [
+    "geolocation",
+    "camera"
+  ],
+  "name": "semakl service app"
+}
