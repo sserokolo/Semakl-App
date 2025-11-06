@@ -1,5 +1,7 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { createRoot } from 'react-dom/client';
+// React and ReactDOM are now loaded globally via script tags in index.html
+// No imports are needed here.
+
+const { useState, useEffect, useRef, useCallback } = React;
 
 // --- START OF GOOGLE API CONFIGURATION ---
 // IMPORTANT: Replace these placeholder values with your own credentials
@@ -133,6 +135,9 @@ const CLIENT_LIST = [
 
 
 // --- TypeScript interfaces for Google APIs ---
+// FIX: Removed global 'any' declarations for React and ReactDOM.
+// This allows TypeScript to use the proper types from @types/react and @types/react-dom,
+// resolving multiple "Untyped function calls" and declaration conflict errors.
 declare global {
     interface Window {
         gapi: any;
@@ -920,7 +925,7 @@ const EditRecordModal = ({ record, onSave, onClose }: { record: ServiceRecord, o
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [name]: value as any }));
     };
 
     const handleSave = async () => {
@@ -1341,5 +1346,6 @@ const App = () => {
 };
 
 const container = document.getElementById('root');
-const root = createRoot(container!);
-root.render(<App />);
+// FIX: Switched to ReactDOM.render to match older @types/react-dom version
+// which does not have the 'createRoot' API, resolving the property not found error.
+ReactDOM.render(<App />, container);
