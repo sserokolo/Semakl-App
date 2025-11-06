@@ -1,143 +1,22 @@
-// React and ReactDOM are now loaded globally via script tags in index.html
-// No imports are needed here.
-
-const { useState, useEffect, useRef, useCallback } = React;
+// Fix: Import React and ReactDOM as modules to resolve UMD global errors.
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import ReactDOM from 'react-dom/client';
 
 // --- START OF GOOGLE API CONFIGURATION ---
 // IMPORTANT: Replace these placeholder values with your own credentials
 // from the Google Cloud Console (https://console.cloud.google.com/).
-//
-// --- Step 1: Create Project & Enable APIs ---
-// 1. Create a new project.
-// 2. Enable the "Google Drive API" and "Google Sheets API".
-//
-// --- Step 2: Configure OAuth Consent Screen (Crucial for Login) ---
-// 1. Go to "APIs & Services" -> "OAuth consent screen".
-// 2. Choose "External" and create the screen.
-// 3. **Publishing Status**: It is okay if it's "In production". If it's "Testing", you MUST
-//    add test users.
-// 4. **Test Users**: While in "Testing" mode, you MUST add the Google accounts
-//    of everyone who will use the app (technicians and admins).
-//    Click "+ ADD USERS" and add your email (e.g., sserokolo@gmail.com).
-//
-// --- Step 3: Create Credentials ---
-// 1. Go to "APIs & Services" -> "Credentials".
-// 2. Create an "API Key". Copy it below.
-//    - Restrict this key: Under "Website restrictions", add the URL where your app
-//      is running (e.g., http://localhost:3000 and your final deployed URL).
-// 3. Create an "OAuth 2.0 Client ID".
-//    - Select "Web application".
-//    - **Authorized JavaScript origins & Redirect URIs**: You MUST add the exact URL where
-//      your app is running to BOTH of these lists. This is the most common cause of login errors.
-//      The app will show you the exact URL to copy.
-//    - Copy the Client ID below.
-//
-// --- Step 4: Create Google Sheet ---
-// 1. Create a new Google Sheet.
-// 2. Get the ID from its URL (the long string between "/d/" and "/edit").
-//    Example: .../d/THIS_IS_THE_ID/edit...
-
 const API_KEY = 'AIzaSyD2Vpli3NxLCl5NUXzeONboG1kPAKcOw6s'; // Replace with your API Key
 const CLIENT_ID = '734978386471-at57e7fa9bardoqteoef8q53kfnldh6b.apps.googleusercontent.com'; // Replace with your Client ID
 const SPREADSHEET_ID = '16gFKvRSOrF6V6QSInppOZ48SAon315nr4UVONQykcnI'; // Replace with your Google Sheet ID
-
 const ADMIN_EMAILS = ['sserokolo@gmail.com']; // Admin email updated as per request.
-
 const SCOPES = 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/spreadsheets';
-
 // --- END OF GOOGLE API CONFIGURATION ---
 
 const CLIENT_LIST = [
-    "Bordeaux",
-    "Burgersdorp S School",
-    "Church of Christ",
-    "Craighead P School",
-    "Femane P School",
-    "Fobeni H School",
-    "Fofoza PS",
-    "Hovheni P School",
-    "Kgahara P School",
-    "Kgolakaleme H School",
-    "Khamanyani P School",
-    "Khekhutini P School",
-    "Khopo P School",
-    "Khudu S School",
-    "Khujwana P School",
-    "Kobjaname P School",
-    "Kruger Berries Farm",
-    "Leakhale P School",
-    "Lekukela",
-    "Maake PS",
-    "Magaingwana P School",
-    "Mageva Sports Centre",
-    "Mahlane",
-    "Mainganya S School",
-    "Maje PS",
-    "Makala S School",
-    "Malebala P School",
-    "Malematsha P",
-    "Malubana P School",
-    "Malwandla P School",
-    "Mamaila P School",
-    "Mameriri School",
-    "Mamolemane S School",
-    "Mankete P School",
-    "Mantheding",
-    "Mantsha",
-    "Maolwe S School",
-    "Mapitlula P School",
-    "Maroboni PS",
-    "Masegela P School",
-    "Mathibadifate SS",
-    "Matome Modika S School",
-    "Matseke H School",
-    "Maufota P School",
-    "Mavele PS",
-    "Mbhekwana S School",
-    "Mmakau PS",
-    "Mogapene PS",
-    "Mohlaba P School",
-    "Mohlatlego Machaba",
-    "Mokwasela Primary School",
-    "Molati",
-    "Morutsi P School",
-    "Mphakane P School",
-    "Namatsabo PS",
-    "Napsadi SS",
-    "Nare",
-    "Ngwana makhutswe H",
-    "Nkambako P School",
-    "Ntwanano PS",
-    "Nyantshiri P School",
-    "Pelo ya Kgomo SS",
-    "Ponani PS",
-    "Ramoba SS",
-    "Rhulani P",
-    "Rita",
-    "Runnymede Comm Library",
-    "Sara PS",
-    "Sebayeng",
-    "Sehonwe P School",
-    "Sekgalabyana SS",
-    "Sekgopo P School",
-    "Sekororo",
-    "Senwamokgope PS",
-    "Senwamokgope SASSA",
-    "Shongani P School",
-    "Solomondale",
-    "Thabanatshwana P School",
-    "Timamogolo PS",
-    "Tingwazi PS",
-    "Tours PS",
-    "Tseana S School",
-    "Tshangwane P School"
+    "Bordeaux", "Burgersdorp S School", "Church of Christ", "Craighead P School", "Femane P School", "Fobeni H School", "Fofoza PS", "Hovheni P School", "Kgahara P School", "Kgolakaleme H School", "Khamanyani P School", "Khekhutini P School", "Khopo P School", "Khudu S School", "Khujwana P School", "Kobjaname P School", "Kruger Berries Farm", "Leakhale P School", "Lekukela", "Maake PS", "Magaingwana P School", "Mageva Sports Centre", "Mahlane", "Mainganya S School", "Maje PS", "Makala S School", "Malebala P School", "Malematsha P", "Malubana P School", "Malwandla P School", "Mamaila P School", "Mameriri School", "Mamolemane S School", "Mankete P School", "Mantheding", "Mantsha", "Maolwe S School", "Mapitlula P School", "Maroboni PS", "Masegela P School", "Mathibadifate SS", "Matome Modika S School", "Matseke H School", "Maufota P School", "Mavele PS", "Mbhekwana S School", "Mmakau PS", "Mogapene PS", "Mohlaba P School", "Mohlatlego Machaba", "Mokwasela Primary School", "Molati", "Morutsi P School", "Mphakane P School", "Namatsabo PS", "Napsadi SS", "Nare", "Ngwana makhutswe H", "Nkambako P School", "Ntwanano PS", "Nyantshiri P School", "Pelo ya Kgomo SS", "Ponani PS", "Ramoba SS", "Rhulani P", "Rita", "Runnymede Comm Library", "Sara PS", "Sebayeng", "Sehonwe P School", "Sekgalabyana SS", "Sekgopo P School", "Sekororo", "Senwamokgope PS", "Senwamokgope SASSA", "Shongani P School", "Solomondale", "Thabanatshwana P School", "Timamogolo PS", "Tingwazi PS", "Tours PS", "Tseana S School", "Tshangwane P School"
 ].sort();
 
 
-// --- TypeScript interfaces for Google APIs ---
-// FIX: Removed global 'any' declarations for React and ReactDOM.
-// This allows TypeScript to use the proper types from @types/react and @types/react-dom,
-// resolving multiple "Untyped function calls" and declaration conflict errors.
 declare global {
     interface Window {
         gapi: any;
@@ -212,7 +91,7 @@ const getAllPendingRecords = async (): Promise<ServiceRecord[]> => {
     const store = transaction.objectStore(STORE_NAME);
     const request = store.getAll();
     return new Promise((resolve) => {
-        request.onsuccess = () => resolve(request.result);
+        request.onsuccess = () => resolve(request.result as ServiceRecord[]);
     });
 };
 
@@ -275,7 +154,7 @@ async function uploadPhotosToDrive(photos: string[], record: Partial<ServiceReco
     const uploadPromises = photos.map(async (photoDataUrl, index) => {
         const blob = dataURLtoBlob(photoDataUrl);
         const fileMetadata = {
-            name: `${clientName}_${date}_photo_${index + 1}.jpg`, // Updated photo naming convention
+            name: `${clientName}_${date}_photo_${index + 1}.jpg`,
             parents: [clientFolderId]
         };
 
@@ -310,21 +189,7 @@ const SHEET_HEADERS = [
 
 
 const recordToSheetRow = (record: Partial<ServiceRecord>) => [
-    record.dateTime,
-    record.technicianName,
-    record.clientName,
-    record.contactPerson,
-    record.contactPhone,
-    record.gps,
-    record.startTime,
-    record.endTime,
-    record.unitsServiced,
-    record.serviceType,
-    record.serviceNotes,
-    record.clientNameTyped,
-    record.clientCellTyped,
-    record.clientSignature,
-    (record.photos || []).join(', ')
+    record.dateTime, record.technicianName, record.clientName, record.contactPerson, record.contactPhone, record.gps, record.startTime, record.endTime, record.unitsServiced, record.serviceType, record.serviceNotes, record.clientNameTyped, record.clientCellTyped, record.clientSignature, (record.photos || []).join(', ')
 ];
 
 async function ensureSheetExists(): Promise<void> {
@@ -334,33 +199,21 @@ async function ensureSheetExists(): Promise<void> {
         });
 
         const sheets = sheetsResponse.result.sheets;
-        const sheetExists = sheets.some(
-            (sheet: any) => sheet.properties.title === SHEET_NAME
-        );
+        const sheetExists = sheets.some((sheet: any) => sheet.properties.title === SHEET_NAME);
 
         if (!sheetExists) {
             console.log(`Sheet "${SHEET_NAME}" not found, creating it...`);
             await window.gapi.client.sheets.spreadsheets.batchUpdate({
                 spreadsheetId: SPREADSHEET_ID,
                 resource: {
-                    requests: [
-                        {
-                            addSheet: {
-                                properties: {
-                                    title: SHEET_NAME,
-                                },
-                            },
-                        },
-                    ],
+                    requests: [{ addSheet: { properties: { title: SHEET_NAME } } }],
                 },
             });
             await window.gapi.client.sheets.spreadsheets.values.append({
                 spreadsheetId: SPREADSHEET_ID,
                 range: `${SHEET_NAME}!A1`,
                 valueInputOption: 'RAW',
-                resource: {
-                    values: [SHEET_HEADERS],
-                },
+                resource: { values: [SHEET_HEADERS] },
             });
             console.log(`Sheet "${SHEET_NAME}" created with headers.`);
         }
@@ -373,7 +226,7 @@ async function ensureSheetExists(): Promise<void> {
 
 async function saveRecordToSheet(record: Partial<ServiceRecord>): Promise<void> {
     console.log('Saving to Google Sheets:', record);
-    const range = `${SHEET_NAME}!A1:O1`; // Adjust range to match columns
+    const range = `${SHEET_NAME}!A1:O1`;
     const values = [ recordToSheetRow(record) ];
 
     const body = { values };
@@ -389,12 +242,12 @@ async function saveRecordToSheet(record: Partial<ServiceRecord>): Promise<void> 
 async function getAllRecordsFromSheet(): Promise<ServiceRecord[]> {
     const response = await window.gapi.client.sheets.spreadsheets.values.get({
         spreadsheetId: SPREADSHEET_ID,
-        range: `${SHEET_NAME}!A2:O`, // Start from A2 to skip header
+        range: `${SHEET_NAME}!A2:O`,
     });
     
     const rows = response.result.values || [];
-    return rows.map((row, index) => ({
-        rowIndex: index + 2, // Sheet rows are 1-based, and we skip header
+    return rows.map((row: any[], index: number) => ({
+        rowIndex: index + 2,
         dateTime: row[0],
         technicianName: row[1],
         clientName: row[2],
@@ -440,7 +293,7 @@ const SignaturePad = ({ onSignatureChange, initialSignature }: { onSignatureChan
         if (e instanceof MouseEvent) {
             return { x: e.clientX - rect.left, y: e.clientY - rect.top };
         }
-        if (e.touches[0]) {
+        if (e instanceof TouchEvent && e.touches[0]) {
              return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
         }
         return { x: 0, y: 0 };
@@ -470,8 +323,9 @@ const SignaturePad = ({ onSignatureChange, initialSignature }: { onSignatureChan
 
     const stopDrawing = () => {
         const canvas = canvasRef.current;
-        const ctx = canvas?.getContext('2d');
-        if (!ctx || !canvas) return;
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        if (!ctx) return;
         ctx.closePath();
         setIsDrawing(false);
         onSignatureChange(canvas.toDataURL('image/png'));
@@ -486,55 +340,28 @@ const SignaturePad = ({ onSignatureChange, initialSignature }: { onSignatureChan
         }
     };
     
-    const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const handleMouseEvent = (handler: (e: React.MouseEvent<HTMLCanvasElement>) => void) => (e: React.MouseEvent<HTMLCanvasElement>) => {
         e.preventDefault();
-        startDrawing(e.nativeEvent);
+        handler(e);
     };
-
-    const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    
+    const handleTouchEvent = (handler: (e: React.TouchEvent<HTMLCanvasElement>) => void) => (e: React.TouchEvent<HTMLCanvasElement>) => {
         e.preventDefault();
-        draw(e.nativeEvent);
-    };
-
-    const handleTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-        e.preventDefault();
-        startDrawing(e.nativeEvent);
-    };
-
-    const handleTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-        e.preventDefault();
-        draw(e.nativeEvent);
+        handler(e);
     };
 
     useEffect(() => {
         const canvas = canvasRef.current;
-        if (!canvas) {
-            return; // Exit if canvas is not yet available
-        }
-        
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-            return; // Exit if context can't be created
-        }
+        const ctx = canvas?.getContext('2d');
+        if (!canvas || !ctx) return;
 
-        // Configure the context for drawing
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 2;
-        
-        // Clear previous content
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // If there's an initial signature, draw it onto the canvas
         if(initialSignature) {
             const img = new Image();
-            img.onload = () => {
-                // Re-check canvas existence in case component unmounted while image was loading
-                const currentCanvas = canvasRef.current;
-                if (currentCanvas) {
-                    const currentCtx = currentCanvas.getContext('2d');
-                    currentCtx?.drawImage(img, 0, 0);
-                }
-            }
+            img.onload = () => ctx.drawImage(img, 0, 0);
             img.src = initialSignature;
         }
     }, [initialSignature]);
@@ -546,13 +373,13 @@ const SignaturePad = ({ onSignatureChange, initialSignature }: { onSignatureChan
                 width="300"
                 height="150"
                 className="signature-pad"
-                onMouseDown={handleMouseDown}
-                onMouseMove={handleMouseMove}
-                onMouseUp={stopDrawing}
-                onMouseLeave={stopDrawing}
-                onTouchStart={handleTouchStart}
-                onTouchMove={handleTouchMove}
-                onTouchEnd={stopDrawing}
+                onMouseDown={handleMouseEvent(e => startDrawing(e.nativeEvent))}
+                onMouseMove={handleMouseEvent(e => draw(e.nativeEvent))}
+                onMouseUp={handleMouseEvent(() => stopDrawing())}
+                onMouseLeave={handleMouseEvent(() => stopDrawing())}
+                onTouchStart={handleTouchEvent(e => startDrawing(e.nativeEvent))}
+                onTouchMove={handleTouchEvent(e => draw(e.nativeEvent))}
+                onTouchEnd={handleTouchEvent(() => stopDrawing())}
             />
             <div className="signature-buttons">
                 <button type="button" className="form-button back-button" onClick={clearSignature}>Clear</button>
@@ -565,63 +392,53 @@ const ServiceForm = ({ onBack, onReview, initialData }: { onBack: () => void, on
     const [formData, setFormData] = useState(initialData);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
-
     useEffect(() => {
-        if (!formData.dateTime) {
-             setFormData(d => ({ ...d, dateTime: new Date().toLocaleString() }));
-        }
+        if (!formData.dateTime) setFormData(d => ({ ...d, dateTime: new Date().toLocaleString() }));
         if (!formData.gps) {
             setFormData(d => ({ ...d, gps: 'Fetching...' }));
-            if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(
-                    (position) => {
-                        const { latitude, longitude } = position.coords;
-                        setFormData(d => ({...d, gps: `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`}));
-                    },
-                    () => setFormData(d => ({...d, gps: 'Could not get location'}))
-                );
-            } else {
-                setFormData(d => ({...d, gps: 'Geolocation not supported'}));
-            }
+            navigator.geolocation.getCurrentPosition(
+                (pos) => setFormData(d => ({...d, gps: `${pos.coords.latitude.toFixed(5)}, ${pos.coords.longitude.toFixed(5)}`})),
+                () => setFormData(d => ({...d, gps: 'Could not get location'})),
+                { enableHighAccuracy: true }
+            );
         }
     }, []);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        const { name, value, type } = e.target;
+        const val = type === 'number' ? parseInt(value, 10) : value;
+        setFormData(prev => ({ ...prev, [name]: val }));
     };
 
     const handlePhotoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        if (event.target.files) {
-            const files = Array.from(event.target.files);
-            const currentPhotos = formData.photos || [];
-            const remainingSlots = MAX_PHOTOS - currentPhotos.length;
-            
-            files.slice(0, remainingSlots).forEach((file: File) => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    if (e.target?.result && typeof e.target.result === 'string') {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            let { width, height } = img;
-                            if (width > MAX_IMAGE_WIDTH) {
-                                height = (MAX_IMAGE_WIDTH / width) * height;
-                                width = MAX_IMAGE_WIDTH;
-                            }
-                            canvas.width = width;
-                            canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
-                            const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
-                            setFormData(prev => ({...prev, photos: [...(prev.photos || []), dataUrl]}));
-                        };
-                        img.src = e.target.result as string;
+        if (!event.target.files) return;
+        const files = Array.from(event.target.files);
+        const currentPhotos = formData.photos || [];
+        const remainingSlots = MAX_PHOTOS - currentPhotos.length;
+        
+        files.slice(0, remainingSlots).forEach((file: File) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                if (typeof e.target?.result !== 'string') return;
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    if (width > MAX_IMAGE_WIDTH) {
+                        height = (MAX_IMAGE_WIDTH / width) * height;
+                        width = MAX_IMAGE_WIDTH;
                     }
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+                    setFormData(prev => ({...prev, photos: [...(prev.photos || []), dataUrl]}));
                 };
-                reader.readAsDataURL(file);
-            });
-        }
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
     };
     
     const removePhoto = (index: number) => {
@@ -643,709 +460,596 @@ const ServiceForm = ({ onBack, onReview, initialData }: { onBack: () => void, on
         <form className="service-form component-container" onSubmit={handleSubmit} style={{maxWidth: '600px', margin: '0 auto'}}>
             <h2>New Service Record</h2>
             
-             <div className="form-group">
+            <div className="form-group">
                 <label>Technician Name</label>
-                <input type="text" value={formData.technicianName || ''} readOnly />
+                <input type="text" value={formData.technicianName || ''} readOnly className="modal-readonly-field" />
             </div>
 
             <div className="form-group">
                 <label htmlFor="clientName">Client/School Name</label>
                 <select id="clientName" name="clientName" value={formData.clientName || ''} onChange={handleChange} required>
-                    <option value="">Select a Client</option>
-                    {CLIENT_LIST.map(client => (
-                        <option key={client} value={client}>{client}</option>
-                    ))}
+                    <option value="" disabled>Select a client...</option>
+                    {CLIENT_LIST.map(client => <option key={client} value={client}>{client}</option>)}
                 </select>
             </div>
-            
+
             <div className="form-group">
                 <label htmlFor="contactPerson">Client Contact Person</label>
                 <input type="text" id="contactPerson" name="contactPerson" value={formData.contactPerson || ''} onChange={handleChange} />
             </div>
-
+            
             <div className="form-group">
                 <label htmlFor="contactPhone">Client Phone Number</label>
                 <input type="tel" id="contactPhone" name="contactPhone" value={formData.contactPhone || ''} onChange={handleChange} />
             </div>
-            
-            <div className="form-group">
-                <label>Date & Time</label>
-                <input type="text" value={formData.dateTime} readOnly />
-            </div>
 
             <div className="form-group">
+                <label>Date & Time</label>
+                <input type="text" value={formData.dateTime || ''} readOnly className="modal-readonly-field" />
+            </div>
+            
+            <div className="form-group">
                 <label>GPS Coordinates</label>
-                <input type="text" value={formData.gps} readOnly />
+                <input type="text" value={formData.gps || ''} readOnly className="modal-readonly-field" />
             </div>
 
             <div className="form-group">
                 <label htmlFor="unitsServiced">Number of Units Serviced</label>
-                <input type="number" id="unitsServiced" name="unitsServiced" min="1" value={formData.unitsServiced || ''} onChange={handleChange} required/>
+                <input type="number" id="unitsServiced" name="unitsServiced" value={formData.unitsServiced || ''} onChange={handleChange} required min="1" />
             </div>
 
             <div className="form-group">
                 <label htmlFor="serviceType">Type of Service</label>
                 <select id="serviceType" name="serviceType" value={formData.serviceType || ''} onChange={handleChange} required>
-                    <option value="">Select Service Type</option>
-                    <option value="Service & Maintenance">Service & Maintenance</option>
-                    <option value="Pumping">Pumping</option>
-                    <option value="Repair">Repair</option>
-                    <option value="Installation">Installation</option>
-                    <option value="Inspection">Inspection</option>
+                    <option value="" disabled>Select a service type...</option>
+                    <option>Service & Maintenance</option>
+                    <option>Pumping</option>
+                    <option>Repair</option>
+                    <option>Installation</option>
+                    <option>Inspection</option>
                 </select>
             </div>
-
+            
             <div className="form-group">
                 <label htmlFor="serviceNotes">Service Notes / Comments</label>
                 <textarea id="serviceNotes" name="serviceNotes" value={formData.serviceNotes || ''} onChange={handleChange}></textarea>
             </div>
             
             <div className="form-group">
-                <label>Photos (up to {MAX_PHOTOS})</label>
-                <input 
-                    type="file" 
-                    accept="image/*" 
-                    capture="environment"
+                <label>Photos (Before, Challenges, After)</label>
+                <p style={{fontSize: '0.9rem', color: '#666', marginTop: '-5px'}}>Max {MAX_PHOTOS} photos. They will be compressed automatically.</p>
+                <input
+                    type="file"
+                    accept="image/*"
                     multiple
-                    ref={fileInputRef} 
                     onChange={handlePhotoChange}
-                    style={{ display: 'none' }} 
+                    ref={fileInputRef}
+                    style={{ display: 'none' }}
                 />
                 <button type="button" className="form-button submit-button" onClick={() => fileInputRef.current?.click()} disabled={photos.length >= MAX_PHOTOS}>
-                    Add Photo
+                    Add Photos ({photos.length}/{MAX_PHOTOS})
                 </button>
                 <div className="photo-grid">
                     {photos.map((photo, index) => (
                         <div key={index} className="photo-thumbnail">
                             <img src={photo} alt={`Service photo ${index + 1}`} />
-                            <button type="button" className="remove-photo-btn" onClick={() => removePhoto(index)}>X</button>
+                            <button type="button" className="remove-photo-btn" onClick={() => removePhoto(index)}>&times;</button>
                         </div>
                     ))}
                 </div>
             </div>
-            
-             <div className="form-group">
+
+            <div className="form-group">
                 <label htmlFor="clientNameTyped">Client Name (typed)</label>
-                <input type="text" id="clientNameTyped" name="clientNameTyped" value={formData.clientNameTyped || ''} onChange={handleChange} required/>
+                <input type="text" id="clientNameTyped" name="clientNameTyped" value={formData.clientNameTyped || ''} onChange={handleChange} required />
             </div>
 
-             <div className="form-group">
+            <div className="form-group">
                 <label htmlFor="clientCellTyped">Client Cell Number (typed)</label>
-                <input type="tel" id="clientCellTyped" name="clientCellTyped" value={formData.clientCellTyped || ''} onChange={handleChange}/>
+                <input type="tel" id="clientCellTyped" name="clientCellTyped" value={formData.clientCellTyped || ''} onChange={handleChange} />
             </div>
-            
+
             <div className="form-group">
                 <label>Client Signature</label>
-                <SignaturePad onSignatureChange={handleSignatureChange} initialSignature={formData.clientSignature || null}/>
+                <SignaturePad onSignatureChange={handleSignatureChange} initialSignature={formData.clientSignature || null} />
             </div>
             
             <div className="form-buttons">
-                <button type="button" className="back-button" onClick={onBack}>
-                    Back
-                </button>
-                <button type="submit" className="submit-button">
-                    Review & Submit
-                </button>
+                <button type="button" className="back-button" onClick={onBack}>Back</button>
+                <button type="submit" className="submit-button">Review Service</button>
             </div>
         </form>
     );
 };
 
-const ReviewScreen = ({ record, onEdit, onSubmit, isSubmitting }: { record: Partial<ServiceRecord>, onEdit: () => void, onSubmit: () => void, isSubmitting: boolean }) => {
+const ReviewScreen = ({ data, onBack, onSubmit }: { data: Partial<ServiceRecord>, onBack: () => void, onSubmit: () => void }) => {
     return (
-        <div className="component-container" style={{maxWidth: '600px', margin: '0 auto'}}>
+        <div className="review-screen component-container" style={{maxWidth: '600px', margin: '0 auto'}}>
             <h2>Review Service Record</h2>
+            <div className="review-item"><span className="review-label">Technician:</span> <span className="review-value">{data.technicianName}</span></div>
+            <div className="review-item"><span className="review-label">Client:</span> <span className="review-value">{data.clientName}</span></div>
+            <div className="review-item"><span className="review-label">Contact Person:</span> <span className="review-value">{data.contactPerson || 'N/A'}</span></div>
+            <div className="review-item"><span className="review-label">Contact Phone:</span> <span className="review-value">{data.contactPhone || 'N/A'}</span></div>
+            <div className="review-item"><span className="review-label">Date & Time:</span> <span className="review-value">{data.dateTime}</span></div>
+            <div className="review-item"><span className="review-label">GPS:</span> <span className="review-value">{data.gps}</span></div>
+            <div className="review-item"><span className="review-label">Units Serviced:</span> <span className="review-value">{data.unitsServiced}</span></div>
+            <div className="review-item"><span className="review-label">Service Type:</span> <span className="review-value">{data.serviceType}</span></div>
+            <div className="review-item"><span className="review-label">Service Notes:</span> <span className="review-value notes">{data.serviceNotes || 'N/A'}</span></div>
+            <div className="review-item"><span className="review-label">Client Name (Typed):</span> <span className="review-value">{data.clientNameTyped}</span></div>
+            <div className="review-item"><span className="review-label">Client Cell (Typed):</span> <span className="review-value">{data.clientCellTyped || 'N/A'}</span></div>
             <div className="review-item">
-                <span className="review-label">Technician Name</span>
-                <div className="review-value">{record.technicianName || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Client/School Name</span>
-                <div className="review-value">{record.clientName || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Client Contact Person</span>
-                <div className="review-value">{record.contactPerson || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Client Phone</span>
-                <div className="review-value">{record.contactPhone || 'N/A'}</div>
-            </div>
-             <div className="review-item">
-                <span className="review-label">Date & Time</span>
-                <div className="review-value">{record.dateTime || 'N/A'}</div>
-            </div>
-             <div className="review-item">
-                <span className="review-label">GPS Coordinates</span>
-                <div className="review-value">{record.gps || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Units Serviced</span>
-                <div className="review-value">{record.unitsServiced || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Service Type</span>
-                <div className="review-value">{record.serviceType || 'N/A'}</div>
-            </div>
-             <div className="review-item">
-                <span className="review-label">Service Notes</span>
-                <div className="review-value notes">{record.serviceNotes || 'N/A'}</div>
-            </div>
-             <div className="review-item">
-                <span className="review-label">Photos</span>
+                <span className="review-label">Photos ({data.photos?.length || 0}):</span>
                 <div className="photo-grid">
-                     {(record.photos || []).map((photo, index) => (
-                        <div key={index} className="photo-thumbnail">
-                            <img src={photo} alt={`Service photo ${index + 1}`} />
-                        </div>
-                    ))}
+                    {(data.photos || []).map((p, i) => <div key={i} className="photo-thumbnail"><img src={p} alt={`Photo ${i+1}`} /></div>)}
                 </div>
             </div>
             <div className="review-item">
-                <span className="review-label">Client Name (typed)</span>
-                <div className="review-value">{record.clientNameTyped || 'N/A'}</div>
-            </div>
-             <div className="review-item">
-                <span className="review-label">Client Cell (typed)</span>
-                <div className="review-value">{record.clientCellTyped || 'N/A'}</div>
-            </div>
-            <div className="review-item">
-                <span className="review-label">Client Signature</span>
-                <div className="review-signature">
-                    {record.clientSignature ? <img src={record.clientSignature} alt="Client Signature" /> : 'No signature provided.'}
-                </div>
+                <span className="review-label">Client Signature:</span>
+                {data.clientSignature ? <div className="review-signature"><img src={data.clientSignature} alt="Client Signature"/></div> : <span className="review-value">Not signed</span>}
             </div>
 
-            <div className="form-buttons">
-                <button type="button" className="back-button" onClick={onEdit} disabled={isSubmitting}>
-                    Edit
-                </button>
-                <button type="button" className="final-submit-button" onClick={onSubmit} disabled={isSubmitting}>
-                    {isSubmitting ? 'Submitting...' : 'Submit Record'}
-                </button>
+             <div className="form-buttons">
+                <button type="button" className="back-button" onClick={onBack}>Edit</button>
+                <button type="button" className="final-submit-button" onClick={onSubmit}>Submit Record</button>
             </div>
         </div>
     );
-}
+};
 
-const LoginScreen = ({ isReady, loadingError }: { isReady: boolean, loadingError: string | null }) => {
-    
-    const handleLoginClick = () => {
-        if (window.tokenClient) {
-            window.tokenClient.requestAccessToken({ prompt: 'consent' });
-        }
-    }
 
+const LoginScreen = ({ onLogin, loading, error }: { onLogin: () => void, loading: boolean, error: string | null }) => {
     const origin = window.location.origin;
+    const [copied, setCopied] = useState(false);
 
-    const handleCopyClick = () => {
+    const handleCopy = () => {
         navigator.clipboard.writeText(origin).then(() => {
-            alert(`Copied to clipboard: ${origin}`);
-        }).catch(err => {
-            console.error('Failed to copy: ', err);
-            alert('Failed to copy. Please select and copy it manually.');
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
         });
     };
-    
-    return (
-        <div className="component-container login-container">
-            <h2>Welcome</h2>
-            {loadingError ? (
-                <div className="login-error" style={{whiteSpace: 'pre-wrap', textAlign: 'left'}}>{loadingError}</div>
-            ) : (
-                <>
-                    <p>Please sign in to continue.</p>
-                    <button className="login-button" onClick={handleLoginClick} disabled={!isReady}>
-                        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
-                        {isReady ? 'Sign in with Google' : 'Initializing...'}
-                    </button>
-                    <div className="troubleshooting-box">
-                        <h3>Still Seeing "Error 400: invalid_request"?</h3>
-                        <p>This is a common but fixable Google security setting. Let's walk through the final steps to solve it.</p>
-                        
-                        <div className="final-checklist">
-                            <h4>Final Checklist Before You Start:</h4>
-                            <ul>
-                                <li><strong>Correct Client ID?</strong> Does the <code>CLIENT_ID</code> in the code exactly match the ID of the credential you are editing in Google Cloud?</li>
-                                <li><strong>Exact URL?</strong> Did you copy the URL below with no typos and <strong>no trailing slash (`/`)</strong> at the end?</li>
-                                <li><strong>URL in BOTH places?</strong> Is the exact same URL listed under <strong>both</strong> "Authorized JavaScript origins" and "Authorized redirect URIs"?</li>
-                            </ul>
-                        </div>
-
-                        <h4>Step 1: Copy Your App's Exact URL</h4>
-                        <p>Your app is running from this unique URL. Click to copy it:</p>
-                        <div className="copy-url-box">
-                            <code>{origin}</code>
-                            <button onClick={handleCopyClick}>Copy</button>
-                        </div>
-
-                        <h4>Step 2: Add the URL to Google Cloud</h4>
-                        <ol>
-                            <li>Go to the <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Google Cloud Credentials</a> page.</li>
-                            <li>Find the "OAuth 2.0 Client IDs" section and click on the name of your client ID (e.g., "Web client 1").</li>
-                            <li>
-                                <strong>Add to Authorized JavaScript origins:</strong>
-                                 <ul>
-                                    <li>Click <strong>"+ ADD URI"</strong> and paste the exact URL you just copied.</li>
-                                </ul>
-                            </li>
-                             <li>
-                                <strong>(Important) Also Add to Authorized redirect URIs:</strong>
-                                <ul>
-                                   <li>Click <strong>"+ ADD URI"</strong> and paste the <strong>same exact URL again</strong>.</li>
-                                </ul>
-                            </li>
-                            <li>Click <strong>"Save"</strong> at the bottom of the page.</li>
-                        </ol>
-                        
-                        <h4>Step 3: Check Your Publishing Status</h4>
-                        <p>Go to the <a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener noreferrer">OAuth consent screen</a> page.</p>
-                        <ul>
-                            <li><strong>If "In production":</strong> You are all set. The error is from the URLs in Step 2.</li>
-                            <li><strong>If "Testing":</strong> You must add your email to the "Test users" list on this page.</li>
-                        </ul>
-                        
-                        <h4>Step 4: Apply Changes and Retry (Crucial!)</h4>
-                        <ol>
-                            <li><strong>Wait:</strong> After clicking "Save" in Google Cloud, wait for <strong>1-2 minutes</strong> for the changes to take effect across Google's servers.</li>
-                            <li><strong>Hard Refresh:</strong> Press <strong>Ctrl+Shift+R</strong> (or <strong>Cmd+Shift+R</strong> on Mac) on this app page to force a full refresh, ignoring any cached data.</li>
-                            <li><strong>Try Incognito:</strong> If it still fails, open a new <strong>Incognito or Private window</strong> in your browser, navigate to this page, and try signing in again. This ensures no old login data is interfering.</li>
-                        </ol>
-
-                    </div>
-                </>
-            )}
-        </div>
-    );
-};
-
-const EditRecordModal = ({ record, onSave, onClose }: { record: ServiceRecord, onSave: (updatedRecord: ServiceRecord) => void, onClose: () => void }) => {
-    const [formData, setFormData] = useState<ServiceRecord>(record);
-    const [isSaving, setIsSaving] = useState(false);
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value as any }));
-    };
-
-    const handleSave = async () => {
-        setIsSaving(true);
-        try {
-            await onSave(formData);
-        } catch (error) {
-            console.error("Failed to save changes:", error);
-            alert("Failed to save changes. Please try again.");
-        } finally {
-            setIsSaving(false);
-        }
-    };
 
     return (
-        <div className="modal-overlay">
-            <div className="modal-content">
-                <h3>Edit Service Record</h3>
-                <div className="form-group">
-                    <label>Technician Name</label>
-                    <input type="text" value={formData.technicianName} readOnly className="modal-readonly-field" />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="clientName">Client Name</label>
-                    <input type="text" id="clientName" name="clientName" value={formData.clientName} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="contactPerson">Contact Person</label>
-                    <input type="text" id="contactPerson" name="contactPerson" value={formData.contactPerson} onChange={handleChange} />
-                </div>
-                <div className="form-group">
-                    <label htmlFor="contactPhone">Contact Phone</label>
-                    <input type="tel" id="contactPhone" name="contactPhone" value={formData.contactPhone} onChange={handleChange} />
-                </div>
-                 <div className="form-group">
-                    <label htmlFor="serviceNotes">Service Notes</label>
-                    <textarea id="serviceNotes" name="serviceNotes" value={formData.serviceNotes} onChange={handleChange}></textarea>
-                </div>
-                <div className="form-group">
-                    <label>Photos</label>
-                    <div>
-                        {(formData.photos || []).map((photo, index) => (
-                            <a href={photo} key={index} target="_blank" rel="noopener noreferrer" className="modal-photo-link">
-                                Photo {index + 1}
-                            </a>
-                        ))}
-                    </div>
-                </div>
-                 <div className="form-group">
-                    <label>Client Signature</label>
-                    {formData.clientSignature ? <img src={formData.clientSignature} alt="Client Signature" style={{border: '1px solid #ccc', borderRadius: '4px', maxWidth: '200px'}} /> : 'No signature'}
-                </div>
-                <div className="form-buttons">
-                    <button type="button" className="back-button" onClick={onClose} disabled={isSaving}>Cancel</button>
-                    <button type="button" className="submit-button" onClick={handleSave} disabled={isSaving}>
-                        {isSaving ? 'Saving...' : 'Save Changes'}
-                    </button>
+        <div className="login-container component-container">
+            <h2>Welcome to the SemaKL Service App</h2>
+            <p>Please log in with your Google account to continue.</p>
+             {error && <div className="login-error">{error}</div>}
+            <button className="login-button" onClick={onLogin} disabled={loading}>
+                <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
+                {loading ? 'Initializing...' : 'Sign in with Google'}
+            </button>
+             <div className="troubleshooting-box">
+                <h3>Login Configuration Help</h3>
+                <p>If you see a "popup_closed_by_user" or "redirect_uri_mismatch" error, it means the Google API is not configured correctly for this app's URL.</p>
+                <h4>To fix this:</h4>
+                <ol>
+                    <li>Go to the <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener noreferrer">Google Cloud Console Credentials</a> page.</li>
+                    <li>Select your project.</li>
+                    <li>Click on the name of your "OAuth 2.0 Client ID".</li>
+                    <li>Under <strong>"Authorized JavaScript origins"</strong>, click "+ ADD URI" and paste the exact URL below.</li>
+                    <li>Under <strong>"Authorized redirect URIs"</strong>, do the same: click "+ ADD URI" and paste the same URL.</li>
+                </ol>
+                <div className="copy-url-box">
+                    <code>{origin}</code>
+                    <button onClick={handleCopy}>{copied ? 'Copied!' : 'Copy'}</button>
                 </div>
             </div>
         </div>
     );
 };
 
-const AdminDashboard = () => {
-    const [records, setRecords] = useState<ServiceRecord[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-    const [recordToEdit, setRecordToEdit] = useState<ServiceRecord | null>(null);
-    
-    const fetchRecords = async () => {
-        setIsLoading(true);
-        setError(null);
-        try {
-            const data = await getAllRecordsFromSheet();
-            setRecords(data);
-        } catch (err) {
-            console.error("Failed to fetch records:", err);
-            setError("Failed to fetch records. Please check your connection and API configuration.");
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    useEffect(() => {
-        fetchRecords();
-    }, []);
-
-    const handleSaveEdit = async (updatedRecord: ServiceRecord) => {
-        await updateRecordInSheet(updatedRecord);
-        setRecords(prevRecords => prevRecords.map(r => r.rowIndex === updatedRecord.rowIndex ? updatedRecord : r));
-        setRecordToEdit(null); // Close modal
-        alert("Record updated successfully!");
-    };
-
-    if (isLoading) return <div className="component-container"><h2>Loading Records...</h2></div>;
-    if (error) return <div className="component-container" style={{color: 'red'}}><h2>Error</h2><p>{error}</p></div>;
+const AdminDashboard = ({ records, onEditRecord }: { records: ServiceRecord[], onEditRecord: (record: ServiceRecord) => void }) => {
+    if (records.length === 0) {
+        return <div className="component-container"><h2>Admin Dashboard</h2><p>No service records found.</p></div>;
+    }
 
     return (
-        <div className="component-container admin-dashboard">
+        <div className="admin-dashboard component-container">
             <h2>Admin Dashboard</h2>
             <div className="table-container">
                 <table className="admin-table">
                     <thead>
                         <tr>
-                            <th>Date</th>
-                            <th>Technician</th>
+                            <th>Date & Time</th>
                             <th>Client</th>
+                            <th>Technician</th>
                             <th>Service Type</th>
+                            <th>Units</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {records.map(record => (
+                        {records.slice().reverse().map(record => ( // Show most recent first
                             <tr key={record.rowIndex}>
-                                <td>{new Date(record.dateTime).toLocaleDateString()}</td>
-                                <td>{record.technicianName}</td>
+                                <td>{record.dateTime}</td>
                                 <td>{record.clientName}</td>
+                                <td>{record.technicianName}</td>
                                 <td>{record.serviceType}</td>
+                                <td>{record.unitsServiced}</td>
                                 <td className="action-cell">
-                                    <button className="edit-button" onClick={() => setRecordToEdit(record)}>Edit</button>
+                                    <button className="edit-button" onClick={() => onEditRecord(record)}>View/Edit</button>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
-             {recordToEdit && (
-                <EditRecordModal 
-                    record={recordToEdit}
-                    onSave={handleSaveEdit}
-                    onClose={() => setRecordToEdit(null)}
-                />
-            )}
         </div>
     );
 };
 
-type View = 'HOME' | 'NEW_SERVICE' | 'REVIEW' | 'ADMIN';
+const EditModal = ({ record, onSave, onClose }: { record: ServiceRecord, onSave: (updatedRecord: ServiceRecord) => void, onClose: () => void }) => {
+    const [editableRecord, setEditableRecord] = useState(record);
 
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+        const { name, value, type } = e.target;
+        const val = type === 'number' ? parseInt(value, 10) : value;
+        setEditableRecord(prev => ({ ...prev, [name]: val }));
+    };
+    
+    const handleSave = () => onSave(editableRecord);
+
+    return (
+        <div className="modal-overlay" onClick={onClose}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+                <h3>Edit Service Record</h3>
+                
+                <div className="form-group">
+                    <label>Date & Time</label>
+                    <input type="text" value={editableRecord.dateTime} className="modal-readonly-field" readOnly />
+                </div>
+                
+                <div className="form-group">
+                    <label>Technician Name</label>
+                    <input type="text" value={editableRecord.technicianName} className="modal-readonly-field" readOnly />
+                </div>
+
+                <div className="form-group">
+                    <label htmlFor="clientName">Client/School Name</label>
+                    <select id="clientName" name="clientName" value={editableRecord.clientName} onChange={handleChange}>
+                         {CLIENT_LIST.map(client => <option key={client} value={client}>{client}</option>)}
+                    </select>
+                </div>
+
+                <div className="form-group">
+                    <label>Contact Person</label>
+                    <input type="text" name="contactPerson" value={editableRecord.contactPerson} onChange={handleChange} />
+                </div>
+                
+                <div className="form-group">
+                    <label>Contact Phone</label>
+                    <input type="tel" name="contactPhone" value={editableRecord.contactPhone} onChange={handleChange} />
+                </div>
+
+                <div className="form-group">
+                    <label>Photos</label>
+                    {(editableRecord.photos || []).map((photo, i) => (
+                        <a href={photo} key={i} target="_blank" rel="noopener noreferrer" className="modal-photo-link">View Photo {i + 1}</a>
+                    ))}
+                    {(!editableRecord.photos || editableRecord.photos.length === 0) && <p>No photos uploaded.</p>}
+                </div>
+
+                <div className="form-buttons">
+                    <button type="button" className="back-button" onClick={onClose}>Cancel</button>
+                    <button type="button" className="submit-button" onClick={handleSave}>Save Changes</button>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+const TechnicianView = ({ user, onNewService }: { user: User, onNewService: () => void }) => {
+    return (
+        <div className="main-content">
+            <button className="new-service-button" onClick={onNewService}>
+                Start New Service
+            </button>
+        </div>
+    );
+};
+
+// Main App Component
 const App = () => {
     const [user, setUser] = useState<User | null>(null);
-    const [view, setView] = useState<View>('HOME');
-    const [currentRecord, setCurrentRecord] = useState<Partial<ServiceRecord>>(emptyRecord);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [syncMessage, setSyncMessage] = useState<string | null>(null);
     const [gapiReady, setGapiReady] = useState(false);
     const [gisReady, setGisReady] = useState(false);
-    const [loadingError, setLoadingError] = useState<string | null>(null);
+    const [loginError, setLoginError] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
     
-    const scriptsLoadedRef = useRef(false);
-    const isApiReady = gapiReady && gisReady;
-
-    const handleLogin = useCallback((loggedInUser: User) => {
-        setUser(loggedInUser);
-        if (loggedInUser.role === 'admin') {
-            setView('ADMIN');
-        } else {
-            setView('HOME');
-        }
-    }, []);
-
-    // --- Sync Offline Data on App Load ---
-    useEffect(() => {
-        if (user && isApiReady && navigator.onLine) {
-            const syncOfflineData = async () => {
-                const pendingRecords = await getAllPendingRecords();
-                if (pendingRecords.length > 0) {
-                    setSyncMessage(`Syncing ${pendingRecords.length} offline record(s)...`);
-                    let successCount = 0;
-                    for (const record of pendingRecords) {
-                        try {
-                           await submitRecord(record);
-                           await deletePendingRecord(record.id!);
-                           successCount++;
-                        } catch (error) {
-                             console.error("Failed to sync offline record:", error);
-                        }
-                    }
-                    setSyncMessage(`Synced ${successCount} of ${pendingRecords.length} record(s).`);
-                    setTimeout(() => setSyncMessage(null), 5000);
-                }
-            };
-            syncOfflineData();
-        }
-    }, [user, isApiReady]);
+    const [currentView, setCurrentView] = useState('main'); // 'main', 'form', 'review'
+    const [currentRecord, setCurrentRecord] = useState<Partial<ServiceRecord>>(emptyRecord);
     
-    // Process a single record submission (used by both online and sync)
-    const submitRecord = async (record: Partial<ServiceRecord>) => {
-         const recordWithEndTime: Partial<ServiceRecord> = {
-            ...record,
-            endTime: record.endTime || new Date().toISOString()
-        };
-        const photoUrls = await uploadPhotosToDrive(record.photos || [], recordWithEndTime);
-        const finalRecord: Partial<ServiceRecord> = {
-            ...recordWithEndTime,
-            photos: photoUrls,
-        };
-        await saveRecordToSheet(finalRecord);
+    const [adminRecords, setAdminRecords] = useState<ServiceRecord[]>([]);
+    const [editingRecord, setEditingRecord] = useState<ServiceRecord | null>(null);
+
+    const [pendingSyncCount, setPendingSyncCount] = useState(0);
+    const [isSyncing, setIsSyncing] = useState(false);
+    
+    let tokenClient: any;
+
+    const checkPendingRecords = async () => {
+        const pending = await getAllPendingRecords();
+        setPendingSyncCount(pending.length);
     };
 
-    // --- Google API Initialization ---
-    useEffect(() => {
-        if (scriptsLoadedRef.current) return;
-        scriptsLoadedRef.current = true;
+    const syncOfflineData = useCallback(async () => {
+        if (isSyncing || !navigator.onLine || !gapiReady || !gisReady || !window.gapi.client.getToken()) return;
 
-        const loadScript = (src: string, id: string) => new Promise<void>((resolve, reject) => {
-            if (document.getElementById(id)) {
-                return resolve();
-            }
-            const script = document.createElement('script');
-            script.src = src;
-            script.id = id;
-            script.async = true;
-            script.defer = true;
-            script.onload = () => resolve();
-            script.onerror = (err) => reject(new Error(`Failed to load script ${src}: ${err}`));
-            document.body.appendChild(script);
-        });
+        const pending = await getAllPendingRecords();
+        if (pending.length === 0) return;
+        
+        setIsSyncing(true);
+        console.log(`Syncing ${pending.length} offline records...`);
 
-        const initializeApis = async () => {
+        for (const record of pending) {
             try {
-                // Load GAPI and GIS scripts in parallel for efficiency
-                await Promise.all([
-                    loadScript('https://apis.google.com/js/api.js', 'gapi-script'),
-                    loadScript('https://accounts.google.com/gsi/client', 'gis-script')
-                ]);
-
-                // Initialize GIS token client for authentication
-                window.tokenClient = window.google.accounts.oauth2.initTokenClient({
-                    client_id: CLIENT_ID,
-                    scope: SCOPES,
-                    callback: async (tokenResponse: any) => {
-                        if (tokenResponse.access_token) {
-                            window.gapi.client.setToken({ access_token: tokenResponse.access_token });
-                            
-                            // Ensure sheet exists before proceeding
-                            try {
-                                await ensureSheetExists();
-                            } catch (sheetError: any) {
-                                alert(`Error setting up Google Sheet: ${sheetError.message}`);
-                                setLoadingError(`Error setting up Google Sheet: ${sheetError.message}`);
-                                return; // Stop login process if sheet setup fails
-                            }
-
-                            const res = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-                               headers: { 'Authorization': `Bearer ${tokenResponse.access_token}` }
-                            });
-                            const profile = await res.json();
-                            
-                            const loggedInUser: User = {
-                               name: profile.name,
-                               email: profile.email,
-                               picture: profile.picture,
-                               role: ADMIN_EMAILS.includes(profile.email) ? 'admin' : 'technician'
-                            };
-                            handleLogin(loggedInUser);
-                        }
-                    },
-                });
-                setGisReady(true);
-
-                // Wait for GAPI to be ready and then initialize the client
-                await new Promise<void>((resolve, reject) => {
-                    window.gapi.load('client', {
-                        callback: resolve,
-                        onerror: reject,
-                        timeout: 5000,
-                        ontimeout: () => reject(new Error('gapi.load timeout'))
-                    });
-                });
-
-                await window.gapi.client.init({
-                    apiKey: API_KEY,
-                    discoveryDocs: [
-                        'https://www.googleapis.com/discovery/v1/apis/drive/v3/rest',
-                        'https://www.googleapis.com/discovery/v1/apis/sheets/v4/rest'
-                    ],
-                });
-                setGapiReady(true);
-
-            } catch (error: any) {
-                console.error("Google API Initialization failed:", error);
-                const origin = window.location.origin;
-                const errorMessage = `Action Required: Could not connect to Google APIs.\n\n` +
-                       `This usually happens because of a misconfiguration in your Google Cloud project. Please follow these steps carefully:\n\n` +
-                       `1. Check API Key Referrer Restrictions\n` +
-                       `Your app is running from this URL:\n${origin}\n\n` +
-                       `You MUST add this exact URL to the "Website restrictions" list for your API Key in the Google Cloud Console.\n` +
-                       `  • Go to: https://console.cloud.google.com/apis/credentials\n` +
-                       `  • Find your API Key.\n` +
-                       `  • Under "Application restrictions", select "Websites".\n` +
-                       `  • Click "ADD" and paste the URL above.\n` +
-                       `  • Click "Save".\n\n` +
-                       `2. Ensure APIs are Enabled\n` +
-                       `Make sure both the "Google Drive API" and "Google Sheets API" are enabled for your project.\n\n` +
-                       `----------------------------------------\n` +
-                       `Technical Error: ${error.message || 'Unknown error'}`;
-                setLoadingError(errorMessage);
+                if (record.photos && record.photos.length > 0) {
+                    const driveUrls = await uploadPhotosToDrive(record.photos, record);
+                    record.photos = driveUrls;
+                }
+                await saveRecordToSheet(record);
+                if (record.id) {
+                    await deletePendingRecord(record.id);
+                }
+                 console.log(`Record ${record.id} synced successfully.`);
+            } catch (error) {
+                console.error(`Failed to sync record ${record.id}:`, error);
+                // Don't stop on error, try the next one
             }
-        };
+        }
+        
+        setIsSyncing(false);
+        checkPendingRecords(); // Update count after sync
+    }, [gapiReady, gisReady, isSyncing]);
 
-        initializeApis();
 
-    }, [handleLogin]);
+    useEffect(() => {
+        // Load GAPI and GIS scripts
+        const gapiScript = document.createElement('script');
+        gapiScript.src = 'https://apis.google.com/js/api.js';
+        gapiScript.async = true;
+        gapiScript.defer = true;
+        gapiScript.onload = () => window.gapi.load('client', () => setGapiReady(true));
+        document.body.appendChild(gapiScript);
 
+        const gisScript = document.createElement('script');
+        gisScript.src = 'https://accounts.google.com/gsi/client';
+        gisScript.async = true;
+        gisScript.defer = true;
+        gisScript.onload = () => setGisReady(true);
+        document.body.appendChild(gisScript);
+        
+        // Offline sync handling
+        checkPendingRecords();
+        window.addEventListener('online', syncOfflineData);
+        return () => window.removeEventListener('online', syncOfflineData);
 
-    const handleLogout = () => {
-        setUser(null);
-        setView('HOME');
-        if (window.gapi?.client?.getToken()) {
-            window.google.accounts.oauth2.revoke(window.gapi.client.getToken().access_token, () => {});
-            window.gapi.client.setToken(null);
+    }, [syncOfflineData]);
+
+    useEffect(() => {
+        if (!gapiReady || !gisReady) return;
+        
+        // Initialize API client
+        window.gapi.client.init({ apiKey: API_KEY, discoveryDocs: [
+            "https://www.googleapis.com/discovery/v1/apis/drive/v3/rest",
+            "https://sheets.googleapis.com/discovery/v1/apis/sheets/v4/rest"
+        ]}).then(() => {
+             tokenClient = window.google.accounts.oauth2.initTokenClient({
+                client_id: CLIENT_ID,
+                scope: SCOPES,
+                callback: async (tokenResponse: any) => {
+                    if (tokenResponse.error) {
+                         setLoginError(`Login Error: ${tokenResponse.error_description || tokenResponse.error}`);
+                         setIsLoading(false);
+                         return;
+                    }
+                    try {
+                        const profileResponse = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                            headers: { 'Authorization': `Bearer ${tokenResponse.access_token}` }
+                        });
+                        const profile = await profileResponse.json();
+                        const userRole = ADMIN_EMAILS.includes(profile.email) ? 'admin' : 'technician';
+                        setUser({ name: profile.name, email: profile.email, picture: profile.picture, role: userRole });
+                        await ensureSheetExists();
+                        syncOfflineData();
+                    } catch(e) {
+                         setLoginError('Failed to fetch user profile or initialize sheet.');
+                    } finally {
+                        setIsLoading(false);
+                    }
+                },
+            });
+        }).catch(err => {
+            setLoginError('GAPI client failed to initialize. Check API Key.');
+            setIsLoading(false);
+        });
+        
+    }, [gapiReady, gisReady, syncOfflineData]);
+
+    const handleLogin = () => {
+        setIsLoading(true);
+        setLoginError(null);
+        if (tokenClient) {
+            if (window.gapi.client.getToken() === null) {
+                tokenClient.requestAccessToken({ prompt: 'consent' });
+            } else {
+                tokenClient.requestAccessToken({ prompt: '' });
+            }
+        } else {
+            setLoginError("Google Authentication is not ready. Please wait a moment and try again.");
+            setIsLoading(false);
         }
     };
-
-    const handleNewService = () => {
+    
+    const handleLogout = () => {
+        const token = window.gapi.client.getToken();
+        if (token !== null) {
+            window.google.accounts.oauth2.revoke(token.access_token, () => {
+                 window.gapi.client.setToken(null);
+                 setUser(null);
+                 setCurrentView('main');
+            });
+        }
+    };
+    
+    const startNewService = () => {
         if (!user) return;
-        setCurrentRecord({ 
+        setCurrentRecord({
             ...emptyRecord,
             technicianName: user.name,
-            startTime: new Date().toISOString()
+            startTime: new Date().toLocaleString(),
         });
-        setView('NEW_SERVICE');
+        setCurrentView('form');
     };
-
+    
     const handleReview = (data: Partial<ServiceRecord>) => {
         setCurrentRecord(data);
-        setView('REVIEW');
+        setCurrentView('review');
     };
-
-    const handleEdit = () => {
-        setView('NEW_SERVICE');
-    };
-
+    
     const handleSubmit = async () => {
-        if ((currentRecord.photos || []).length === 0) {
-            alert("Please add at least one photo before submitting.");
-            return;
-        }
-
-        // --- OFFLINE LOGIC ---
-        if (!navigator.onLine) {
-            try {
-                await saveRecordOffline(currentRecord);
-                alert("You are offline. Record has been saved locally and will be submitted automatically when you are back online.");
-                setView('HOME');
-                setCurrentRecord(emptyRecord);
-            } catch (error) {
-                 console.error("Failed to save record offline:", error);
-                 alert("Could not save the record for offline submission. Please try again.");
-            }
-            return;
-        }
-
-        // --- ONLINE LOGIC ---
-        setIsSubmitting(true);
+        const finalRecord: Partial<ServiceRecord> = {
+            ...currentRecord,
+            endTime: new Date().toLocaleString(),
+        };
+        
+        setIsLoading(true);
+        
         try {
-            await submitRecord(currentRecord);
-            alert("Service record submitted successfully!");
-            setView('HOME');
+            if (navigator.onLine) {
+                 if (finalRecord.photos && finalRecord.photos.length > 0) {
+                    const driveUrls = await uploadPhotosToDrive(finalRecord.photos, finalRecord);
+                    finalRecord.photos = driveUrls;
+                }
+                await saveRecordToSheet(finalRecord);
+                alert('Service record submitted successfully!');
+            } else {
+                await saveRecordOffline(finalRecord);
+                await checkPendingRecords();
+                alert('You are offline. Record saved locally and will be synced automatically when you reconnect.');
+            }
+            setCurrentView('main');
             setCurrentRecord(emptyRecord);
-        } catch (error) {
+        } catch(error) {
             console.error("Submission failed:", error);
-            alert("Submission failed. Please check your connection and try again.");
+            alert(`Submission failed: ${error instanceof Error ? error.message : String(error)}. The record has been saved locally for syncing.`);
+            await saveRecordOffline(finalRecord);
+            await checkPendingRecords();
+            setCurrentView('main');
+            setCurrentRecord(emptyRecord);
         } finally {
-            setIsSubmitting(false);
+            setIsLoading(false);
         }
     };
     
-    const handleBackToHome = () => {
-        setView('HOME');
-        setCurrentRecord(emptyRecord);
-    }
-
-    if (!user) {
-        return <LoginScreen isReady={isApiReady} loadingError={loadingError} />;
-    }
-
-    const renderContent = () => {
-        switch (view) {
-            case 'NEW_SERVICE':
-                return <ServiceForm onBack={handleBackToHome} onReview={handleReview} initialData={currentRecord} />;
-            case 'REVIEW':
-                return <ReviewScreen record={currentRecord} onEdit={handleEdit} onSubmit={handleSubmit} isSubmitting={isSubmitting} />
-            case 'ADMIN':
-                return <AdminDashboard />;
-            case 'HOME':
-            default:
-                return (
-                     <main className="main-content" style={{maxWidth: '600px', margin: '0 auto'}}>
-                        {syncMessage && <div className="sync-notification">{syncMessage}</div>}
-                        <button
-                            className="new-service-button"
-                            onClick={handleNewService}
-                            aria-label="Create a new service record"
-                        >
-                            + New Service Record
-                        </button>
-                    </main>
-                );
+    const fetchAdminRecords = async () => {
+        setIsLoading(true);
+        try {
+            const records = await getAllRecordsFromSheet();
+            setAdminRecords(records);
+        } catch (e) {
+            alert('Failed to load records from Google Sheets.');
+        } finally {
+            setIsLoading(false);
         }
     };
+    
+    const handleSaveAdminEdit = async (updatedRecord: ServiceRecord) => {
+        setIsLoading(true);
+        try {
+            await updateRecordInSheet(updatedRecord);
+            setAdminRecords(prev => prev.map(r => r.rowIndex === updatedRecord.rowIndex ? updatedRecord : r));
+            setEditingRecord(null);
+            alert('Record updated successfully!');
+        } catch (e) {
+            alert('Failed to update record.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    useEffect(() => {
+        if (user?.role === 'admin') {
+            fetchAdminRecords();
+        }
+    }, [user]);
+
+    if (!user) {
+        return <LoginScreen onLogin={handleLogin} loading={isLoading || !gapiReady || !gisReady} error={loginError} />;
+    }
 
     return (
         <div className="app-container">
             <header className="app-header">
-                <h1>SemaKL Enviro Loo</h1>
-                {user && (
-                    <div className="header-user-info">
-                        <span>{user.name}</span>
-                        <button className="logout-button" onClick={handleLogout}>Logout</button>
-                    </div>
-                )}
+                <h1>SemaKL Enviro Loo Service App</h1>
+                <div className="header-user-info">
+                    <span>{user.name} ({user.role})</span>
+                    <button onClick={handleLogout} className="logout-button">Logout</button>
+                </div>
             </header>
-            {renderContent()}
+
+            {pendingSyncCount > 0 && (
+                <div className="sync-notification">
+                    {isSyncing ? `Syncing ${pendingSyncCount} offline records...` : `${pendingSyncCount} records waiting to sync.`}
+                </div>
+            )}
+            
+            {user.role === 'admin' && currentView === 'main' && (
+                <AdminDashboard records={adminRecords} onEditRecord={setEditingRecord} />
+            )}
+            
+            {user.role === 'technician' && currentView === 'main' && (
+                <TechnicianView user={user} onNewService={startNewService} />
+            )}
+
+            {currentView === 'form' && (
+                <ServiceForm
+                    initialData={currentRecord}
+                    onBack={() => setCurrentView('main')}
+                    onReview={handleReview}
+                />
+            )}
+            
+            {currentView === 'review' && (
+                <ReviewScreen
+                    data={currentRecord}
+                    onBack={() => setCurrentView('form')}
+                    onSubmit={handleSubmit}
+                />
+            )}
+
+            {editingRecord && (
+                <EditModal
+                    record={editingRecord}
+                    onClose={() => setEditingRecord(null)}
+                    onSave={handleSaveAdminEdit}
+                />
+            )}
+            
+            {isLoading && !loginError && <div className="sync-notification">Processing...</div>}
         </div>
     );
 };
 
+
+// --- PWA Service Worker Registration ---
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/service-worker.js')
+      .then(registration => {
+        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+      })
+      .catch(error => {
+        console.log('ServiceWorker registration failed: ', error);
+      });
+  });
+}
+
+// --- Mount the app ---
 const container = document.getElementById('root');
-// FIX: Switched to ReactDOM.render to match older @types/react-dom version
-// which does not have the 'createRoot' API, resolving the property not found error.
-ReactDOM.render(<App />, container);
+if (container) {
+    // Fix: Use createRoot from the imported ReactDOM module and render using JSX.
+    const root = ReactDOM.createRoot(container);
+    root.render(<App />);
+} else {
+    console.error('Failed to find the root element');
+}
