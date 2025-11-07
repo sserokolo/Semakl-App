@@ -1,8 +1,24 @@
-{
-  "description": "Prompt to be used by the field team to document the services and a client's location, offline, documenting dates, times, GPS coordinates, accepting typed data, and taking photos. Used by a single technician and 1 admin. Admin has a dashboard.",
-  "requestFramePermissions": [
-    "geolocation",
-    "camera"
-  ],
-  "name": "semakl service app"
-}
+[build]
+  publish = "."       # publish the root folder
+  command = ""        # no build command (pure HTML/JS app)
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    Access-Control-Allow-Origin = "*"
+    X-Frame-Options = "SAMEORIGIN"
+
+[[plugins]]
+  package = "@netlify/plugin-gatsby"  # optional, can remove if not using Gatsby
+
+# Redirect all routes to index.html for SPA support
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Metadata and permissions
+[context.production.environment]
+  DESCRIPTION = "Prompt to be used by the field team to document services and client location, offline, with GPS, photos, and typed data. Used by a single technician and one admin."
+  REQUEST_FRAME_PERMISSIONS = "geolocation,camera"
+  APP_NAME = "SemaKL Service App"
